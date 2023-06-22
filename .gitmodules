@@ -1,0 +1,12 @@
+[submodule "profile-box-terraform"]
+path = profile-box-terraform
+url = https://github.com/k8s12-CacaoEnt/profile-box-terraform.git
+[submodule "profile-box-helm"]
+path = profile-box-helm
+url = https://github.com/k8s12-CacaoEnt/profile-box-helm.git
+[submodule "profile-box-api-user"]
+	path = profile-box-api-user
+	url = https://github.com/k8s12-CacaoEnt/profile-box-api-user.git
+[submodule "profile-box-comm"]
+	path = profile-box-comm
+	url = https://github.com/k8s12-CacaoEnt/profile-box-comm.git
