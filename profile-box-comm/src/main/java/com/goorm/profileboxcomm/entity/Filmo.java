@@ -1,59 +1,84 @@
 package com.goorm.profileboxcomm.entity;
 
-import com.goorm.profileboxcomm.entity.enumeration.FilmoType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.goorm.profileboxcomm.dto.filmo.request.CreateFilmoRequestDto;
+import com.goorm.profileboxcomm.enumeration.FilmoType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "filmo")
-@Getter @Setter
 public class Filmo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long filmoId;
 
     @Enumerated(EnumType.STRING)
+    @NotNull
     private FilmoType filmoType;
 
     @Column(name = "filmo_name")
+    @NotNull
+    @NotBlank
     private String filmoName;
 
     @Column(name = "filmo_year")
+    @NotNull
+    @NotBlank
     private String filmoYear;
 
     @Column(name = "filmo_director")
+    @NotNull
+    @NotBlank
     private String filmoDirector;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_dt")
     private LocalDateTime createDt;
 
-    // One-to-One relationship with Image entity
-//    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "image_id")
-//    private Image filmoImage;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "modify_dt")
+    private LocalDateTime modifyDt;
 
-    @PrePersist
-    public void prePersist() {
-        createDt = LocalDateTime.now();
-    }
-
-    // Many-to-One relationship with Profile entity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
+    @JsonBackReference
     private Profile profile;
 
+    // Getters and Setters
+    @PrePersist
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        createDt = now;
+        modifyDt = now;
+    }
+
+    @PreUpdate
+    protected void onModify() {
+        modifyDt = LocalDateTime.now();
+    }
+
+    // method
     public static Filmo createFilmo(CreateFilmoRequestDto filmoDto, Profile profile) {
-        Filmo filmo = new Filmo();
-        filmo.setFilmoType(filmoDto.getFilmoType());
-        filmo.setFilmoName(filmoDto.getFilmoName());
-        filmo.setFilmoYear(filmoDto.getFilmoYear());
-        filmo.setFilmoDirector(filmoDto.getFilmoDirector());
-        filmo.setProfile(profile);
-        return filmo;
+        return Filmo.builder()
+                .filmoType(filmoDto.getFilmoType())
+                .filmoName(filmoDto.getFilmoName())
+                .filmoYear(filmoDto.getFilmoYear())
+                .filmoDirector(filmoDto.getFilmoDirector())
+                .profile(profile)
+                .build();
     }
 
     // Getters and Setters

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class SelectImageResponseDto {
-    private String imageId;
+    private Long imageId;
     private String fileName;
     private String filePath;
     private String fileRealName;
@@ -14,7 +14,7 @@ public class SelectImageResponseDto {
     }
 
     public SelectImageResponseDto(Image image) {
-        this.imageId = image.getImgageId().toString();
+        this.imageId = image.getImgageId();
         this.fileName = image.getFileName();
         this.filePath = image.getFilePath();
         this.fileRealName = image.getFileRealName();

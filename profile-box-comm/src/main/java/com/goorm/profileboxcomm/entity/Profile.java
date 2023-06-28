@@ -1,105 +1,109 @@
 package com.goorm.profileboxcomm.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.goorm.profileboxcomm.dto.profile.request.CreateProfileRequestDto;
+import com.goorm.profileboxcomm.dto.profile.ProfileDTO;
+import com.goorm.profileboxcomm.utils.Utils;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
+@Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "profile")
-@Getter
-@Setter
 public class Profile {
+
     @Id
+    @Column(name="profile_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long profileId;
 
     @Column(name = "content")
+    @NotNull
+    @NotBlank
     private String content;
 
     @Column(name = "title")
+    @NotNull
+    @NotBlank
     private String title;
 
     @Column(name = "default_image_id")
+//    @Positive
     private Long defaultImageId;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_dt")
     private LocalDateTime createDt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "modify_dt")
+    private LocalDateTime modifyDt;
+
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @JsonManagedReference
     private Member member;
 
-    // One-to-Many relationship with Image entity
+    @JsonManagedReference
+//    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "imageId")
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)
-    private List<Image> images;
+    private List<Image> imageEntities;
 
-    // One-to-Many relationship with Video entity
+    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)
-    private List<Video> videos;
+    private List<Video> videoEntities;
 
-    // One-to-Many relationship with Filmo entity
+    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)
-    private List<Filmo> filmos;
+    private List<Filmo> filmoEntities;
 
-    // One-to-Many relationship with Link entity
+    @JsonManagedReference
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "profile", orphanRemoval = true)
-    private List<Link> links;
+    private List<Link> linkEntities;
 
-    // Getters and Setters
     @PrePersist
-    public void prePersist() {
-        createDt = LocalDateTime.now();
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        createDt = now;
+        modifyDt = now;
     }
 
+    @PreUpdate
+    protected void onModify() {
+        modifyDt = LocalDateTime.now();
+    }
 
-
-    // Constructor
-//    public void setImages(List<CreateImageRequestDto> imagesDto) {
-//        if (imagesDto != null) {
-//            profile.setImages(profileDto.getImages().stream()
-//                    .map(o -> Image.createImage(o, this))
-//                    .collect(toList()));
-//
-//        }
-////        this.images = images;
-//        if (images != null) {
-//            for (Image image : images) {
-//                image.setProfile(this);
-//            }
-//        }
-//    }
+    // method
     public static Profile createProfile(CreateProfileRequestDto profileDto, Member member) {
-        Profile profile = new Profile();
-        profile.setContent(profileDto.getContent());
-        profile.setTitle(profileDto.getTitle());
-        profile.setMember(member);
-        if (profileDto.getImages() != null) {
-            profile.setImages(profileDto.getImages().stream()
-                    .map(o -> Image.createImage(o, profile))
-                    .collect(toList()));
-        }
-        if (profileDto.getVideos() != null) {
-            profile.setVideos(profileDto.getVideos().stream()
-                    .map(o -> Video.createVideo(o, profile))
-                    .collect(toList()));
-        }
-        if (profileDto.getFilmos() != null) {
-            profile.setFilmos(profileDto.getFilmos().stream()
-                    .map(o -> Filmo.createFilmo(o, profile))
-                    .collect(toList()));
-        }
-        if (profileDto.getLinks() != null) {
-            profile.setLinks(profileDto.getLinks().stream()
-                    .map(o -> Link.createLink(o, profile))
-                    .collect(toList()));
-        }
-        return profile;
+        return Profile.builder()
+                .title(profileDto.getTitle())
+                .content(profileDto.getContent())
+                .member(member)
+                .build();
+    }
+
+    public static ProfileDTO toDTO(Profile entity){
+        return ProfileDTO.builder()
+                .profileId(entity.getProfileId())
+                .content(entity.getContent())
+                .title(entity.getTitle())
+                .default_image_id(entity.getDefaultImageId())
+                .create_date(Utils.localDateToString(entity.getCreateDt()))
+                .modify_date(Utils.localDateToString(entity.getModifyDt()))
+                .member_id(entity.getMember().getMemberId())
+                .build();
+
     }
 }
 

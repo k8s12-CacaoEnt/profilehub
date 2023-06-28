@@ -1,6 +1,13 @@
 # Gradle specific files
 .gradle/
 build/
+profile-box-api-user/
+profile-box-api-admin/
+profile-box-comm/
+profile-box-terraform/
+profile-box-helm/
+profilehub-frontend/
+
 
 # IDE files
 .idea/

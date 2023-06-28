@@ -7,8 +7,8 @@ variable "region" {
   default     = "ap-northeast-2"
 }
 variable "access_key" {
-  default  = "d"
+  default  = "AKIAS7LKAHOQQDRS77W4"
 }
 variable "secret_key" {
-  default  = "d"
+  default  = "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"
 }

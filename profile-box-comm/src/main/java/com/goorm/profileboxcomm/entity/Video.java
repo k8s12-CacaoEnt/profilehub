@@ -1,52 +1,67 @@
 package com.goorm.profileboxcomm.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.goorm.profileboxcomm.dto.video.request.CreateVideoRequestDto;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "video")
-@Getter
-@Setter
 public class Video {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long videoId;
 
     @Column(name = "file_name")
+    @NotNull
+    @NotBlank
     private String fileName;
 
     @Column(name = "file_real_name")
+    @NotNull
+    @NotBlank
     private String fileRealName;
 
     @Column(name = "file_path")
+    @NotNull
+    @NotBlank
     private String filePath;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_dt")
     private LocalDateTime createDt;
 
-    // Many-to-One relationship with Profile entity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "profile_id")
+    @JsonBackReference
     private Profile profile;
 
     // Getters and Setters
     @PrePersist
-    public void prePersist() {
-        createDt = LocalDateTime.now();
+    protected void onCreate() {
+        LocalDateTime now = LocalDateTime.now();
+        createDt = now;
     }
 
-
-    // Constructor
+    // method
     public static Video createVideo(CreateVideoRequestDto videoDto, Profile profile) {
-        Video video = new Video();
-        video.setFileName(videoDto.getFileName());
-        video.setFilePath(videoDto.getFilePath());
-        video.setFileRealName(videoDto.getFileRealName());
-        video.setProfile(profile);
-        return video;
+        return Video.builder()
+                .fileName(videoDto.getFileName())
+                .fileRealName(videoDto.getFileRealName())
+                .filePath(videoDto.getFilePath())
+                .profile(profile)
+                .build();
     }
 }
