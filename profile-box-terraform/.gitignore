@@ -1,0 +1,16 @@
+# Ignore Terraform files
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+terraform.tfstate*
+
+# Ignore override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore Terraform plugin files
+.terraformrc
+terraform.rc
